@@ -20,9 +20,32 @@ if (isset($_POST["email"]))
       echo "Do you even go here?";
       die();
     }
+?>
 
-    echo "Success!";
+<html>
 
+  <body>
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+        <div class="takeExam">
+          Take Exam
+          <a href="googleSuccess.php">
+            <span class="link-spanner"></span>
+          </a>
+        </div>
+
+        <div class="viewResults">
+          View Results
+          <a href="googleSuccess.php">
+            <span class="link-spanner"></span>
+          </a>
+        </div>
+
+  </body>
+
+</html>
+
+<?php
   } catch (PDOException $e) {
     print "Error!" . $e -> getMessage()."<br/>";
     die();

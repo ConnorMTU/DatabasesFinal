@@ -1,0 +1,42 @@
+body {
+  background-color: #DFDBDB;
+}
+
+.takeExam {
+  background-color: #FA5C5C;
+  width: 100px;
+  padding: 25px;
+  border: 2px solid black;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  margin-left: -145px;
+  margin-top: -50px;
+}
+
+.viewResults {
+  background-color: #FA5C5C;
+  width: 100px;
+  padding: 25px;
+  border: 2px solid black;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  margin-left: 20px;
+  margin-top: -50px;
+}
+
+.link-spanner{
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left: 0;
+  z-index: 1;
+
+  /* edit: fixes overlap error in IE7/8,
+     make sure you have an empty gif
+  background-image: url('empty.gif');*/
+}
