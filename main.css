@@ -2,6 +2,19 @@ body {
   background-color: #DFDBDB;
 }
 
+.returnHome {
+  background-color: #FA5C5C;
+  width: 100px;
+  padding: 25px;
+  border: 2px solid black;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  margin-left: -145px;
+  margin-top: -50px;
+}
+
 .takeExam {
   background-color: #FA5C5C;
   width: 100px;
