@@ -10,13 +10,83 @@ session_start();
 
 if (isset($_SESSION['taken']) && isset($_SESSION['exam']))
 {
-  var_dump($_POST);
+  //var_dump($_POST);
 
-  echo "<br><br>";
+  //echo "<br><br>";
 
-  echo "You just submitted an exam, please continue to the View Results page to see your results.";
-  unset($_SESSION['taken']);
-  unset($_SESSION['exam']);
+  $config = parse_ini_file("finaldb.ini");
+  $dbh = new PDO($config['dsn'], $config['username'], $config['password']);
+
+  $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+  try {
+
+    $statement = $dbh->prepare("SELECT question_number, correct_choice, points from questions_fp where name=:name");
+
+    $statement->execute(array('name' => $_SESSION['exam']));
+    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+    //echo "<br><br>";
+
+    //var_dump($result);
+
+    $student_result = 0;
+    $exam_total = 0;
+
+    // Calculate exam total
+    for ($i = 0; $i < sizeof($result); $i++) {
+      $exam_total += $result[$i]['points'];
+    }
+
+    $userSubmittedQuestions = array_keys($_POST);
+
+    $statement = $dbh->prepare("INSERT INTO result_fp (id, exam_name, question, correct_choice, student_answer, student_pts) VALUES (:id, :exam_name, :question, :correct_choice, :student_answer, :student_pts)");
+
+    //$statement->execute(array('name' => $_SESSION['exam']));
+
+    // We only calculate based on what the student submitted, if they leave a question blank, they will not get credit for it.
+    for ($i = 0; $i < sizeof($_POST); $i++) {
+      for ($j = 0; $j < sizeof($result); $j++) {
+        if ($result[$j]['question_number'] == $userSubmittedQuestions[$i]) {
+          if ($result[$j]['correct_choice'] == $_POST[$userSubmittedQuestions[$i]]) {
+            $student_result += $result[$j]['points'];
+
+            /*echo "<br><br>";
+            echo ':id ' . $_SESSION['id']. ' :exam_name ' . $_SESSION['exam']. ' :question ' . $userSubmittedQuestions[$i]. ' :correct_choice ' . $result[$j]['correct_choice']. ' :student_answer ' . $_POST[$userSubmittedQuestions[$i]]. ' :student_pts ' . $result[$j]['points'];
+            echo "<br><br>";*/
+
+            $statement->execute(array(':id' => $_SESSION['id'], ':exam_name' => $_SESSION['exam'], ':question' => $userSubmittedQuestions[$i], ':correct_choice' => $result[$j]['correct_choice'], ':student_answer' => $_POST[$userSubmittedQuestions[$i]], ':student_pts' => $result[$j]['points']));
+            break;
+          } else {
+            /*echo "<br><br>";
+            echo ' :id ' . $_SESSION['id']. ' :exam_name ' . $_SESSION['exam']. ' :question ' . $userSubmittedQuestions[$i]. ' :correct_choice ' . $result[$j]['correct_choice']. ' :student_answer ' . $_POST[$userSubmittedQuestions[$i]]. ' :student_pts ' . 0;
+            echo "<br><br>";*/
+            $statement->execute(array(':id' => $_SESSION['id'], ':exam_name' => $_SESSION['exam'], ':question' => $userSubmittedQuestions[$i], ':correct_choice' => $result[$j]['correct_choice'], ':student_answer' => $_POST[$userSubmittedQuestions[$i]], ':student_pts' => 0));
+            break;
+          }
+        }
+      }
+    }
+
+    echo "Total possible points: " . $exam_total . "<br>";
+    echo "Total earned points: " . $student_result . "<br>";
+
+    echo "You just submitted an exam, please continue to the View Results page to see more specific results.";
+    unset($_SESSION['taken']);
+    unset($_SESSION['exam']);
+    echo "<br>";
+    ?>
+
+    <form action="googleSuccess.php" method="post">
+      <input type="submit" value="Home">
+    </form>
+
+    <?php
+
+  } catch (PDOException $e) {
+    print "Error!" . $e -> getMessage()."<br/>";
+    die();
+  }
 }
 else if (isset($_POST["exam"]))
 {
@@ -33,12 +103,12 @@ else if (isset($_POST["exam"]))
   try {
     $statement = $dbh->prepare("SELECT question_number, points, question_prompt, choice_prompt, choices from questions_fp where name=:name");
 
-    $statement->execute(array('name' => $_POST['exam']));
+    $statement->execute(array(':name' => $_POST['exam']));
     $result = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-    var_dump($result);
+    //var_dump($result);
 
-    echo "<br><br>";
+    //echo "<br><br>";
 
     // Start building questions
     //echo $result[0]['question_prompt'] . " (" . $result[0]['points'] . " pts)";
